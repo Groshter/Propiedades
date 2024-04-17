@@ -1,8 +1,84 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model vmPropiedadResponse
+@{
+    ViewData["Title"] = "Listado Principal";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <h1>Listado de Propiedades</h1>
+    <div class="row">
+
+        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")" style="padding:14px" id="searchForm">
+            <label for="regiones">Región:</label>
+            <select id="regiones" asp-items="@ViewBag.Regiones" name="regiones" onchange="cargarSectores(this.value)"></select><br />
+
+            <label for="regiones">Sector:</label>
+            <select id="sectores" name="sectores"></select><br />
+
+            <label for="tipo">Tipo de Propiedad:</label>
+            <select id="tipo" asp-items="@ViewBag.PropiedadTipos" name="tipo"></select><br />
+
+            <button class="btn btn-outline-success" type="submit">Buscar</button><br />
+        </form>
+
+        @if (Model.Response.Items.Count > 0)
+        {
+            @foreach (var propiedad in Model.Response.Items)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="@propiedad.FirstImageUrl" class="card-img-top" alt="Imagen de la propiedad">
+                        <div class="card-body">
+                            <h5 class="card-title">@propiedad.PropertyTitle</h5>
+                            <p class="card-text">Ubicación: @propiedad.Street, @propiedad.Number</p>
+                            <p class="card-text">Precio: @propiedad.PriceSaleFormatted</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a asp-controller="Home" asp-action="Detalles" asp-route-PropiedadId="@propiedad.IdProperty" class="btn btn-sm btn-outline-secondary">Ver detalles</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= @ViewBag.Pages; i++)
+                    {
+                        <li class="page-item @(i == @ViewBag.PageNumber ? "active" : "")">
+                            <a class="page-link" href="?pageNumber=@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                No se encontraron propiedades.
+            </div>
+        }
+    </div>
 </div>
+<script>
+    window.onload = function () {
+        debugger
+        const RegionId = document.getElementById("regiones").value;
+        cargarSectores(RegionId);
+    };
+</script>
+<script>
+    function cargarSectores(regionId) {
+        var url = '@Url.Action("ObtenerSectoresPorRegion", "Home")';
+        var data = { regionId: regionId };
+
+        $.get(url, data, function (response) {
+            var select = $('#sectores');
+            select.empty();
+
+            $.each(response, function (index, sector) {
+                select.append($('<option>').text(sector.name).attr('value', sector.idBorough));
+            });
+            document.getElementById("sectores").value = "@ViewBag.sectorSeleccionado"
+        });
+    };
+</script>

@@ -1,0 +1,57 @@
+﻿@model DetallesPropiedad.PropertyDetalle
+@{
+    ViewData["Title"] = Model.PropertyTitle + " - Detalles";
+}
+
+<style>
+    .propiedad-caracteristicas {
+        list-style-type: none;
+        padding: 0;
+    }
+        .property-characteristics li {
+            margin-bottom: 5px;
+        list-style-type: none;
+        }
+            .property-characteristics li::before {
+                content: ">";
+                margin-right: 5px;
+                color: #333;
+            }
+</style>
+
+<h1>Detalles de la Propiedad</h1>
+
+<div class="col-md-12">
+    <div class="card mb-12 shadow-sm">
+        <img src="@Model.FirstImageUrl" class="card-img-top" alt="Imagen de la propiedad">
+        <div class="card-body">
+            <h5 class="card-title">@Model.PropertyTitle <small>ID : @Model.IdProperty</small></h5>
+            <p class="card-text">Ubicación: @Model.Street, @Model.Number</p>
+            <p class="card-text">Precio Venta: @Model.PriceSaleFormatted</p>
+            <p class="card-text">Precio Arriendo : @Model.PriceRentFormatted</p>
+            <p class="card-text">@Model.Observations.ToString()</p>
+
+            <h3>Características</h3>
+
+            <div class="propiedad-caracteristica">
+                <ul class="property-characteristics">
+                    <li>Superficie total : @Model.Characteristics.TotalSurface <smal>mt2</smal></li>
+                    <li>orientación : @Model.Characteristics.Orientation</li>
+                    <li>Dormitorios : @Model.Characteristics.Bedrooms </li>
+                    <li>Baños : @Model.Characteristics.Bathrooms </li>
+                    <li>Estacionamientos  : @Model.Characteristics.CoveredParkings</li>
+                    <li>Gastos comunes : $ @Model.Characteristics.CommonExpenses.ToString("N0") </li>
+                    <li>Patio: @(Model.Characteristics.Yard ? "Si" : "No") </li>
+                    <li>Conexión de lavandería: @(Model.Characteristics.WithLaundryConnection ? "Si" : "No") </li>
+                    <li>Áreas Verde: @(Model.Characteristics.WithGreenArea ? "Si" : "No") </li>
+                </ul>
+            </div>
+            <div class="mb-3">
+                <div class="btn-group">
+                    <a asp-controller="Home" asp-action="Index" asp-route-pageNumber="@ViewBag.Pages" class="btn btn-sm btn-outline-primary">Ir al listado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</ul>
