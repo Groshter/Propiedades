@@ -24,8 +24,8 @@ namespace Propiedades.Services
         public async Task<vmPropiedadResponse> ObtenerTodasLasPropiedades(int? pageNumber, string orderBy, string searchTerm,
                                                                           int? pageSize, string orderDirection, int? idType, int? Sector)
         {
-            string apiUrl = _configuration["AppSettings:ApiUrl"];
-            string Subscription = _configuration["AppSettings:Subscription-Key"];
+            string apiUrl = _configuration["AppSettings:ApiUrl"]; // dejo la api en el appsettings parametrizado
+            string Subscription = _configuration["AppSettings:Subscription-Key"]; // dejo la key en el appsettings parametrizado
             try
             {
                 _httpClient.DefaultRequestHeaders.CacheControl = CacheControlHeaderValue.Parse("no-cache");
@@ -39,13 +39,13 @@ namespace Propiedades.Services
                     {"PageSize", pageSize?.ToString()},
                     {"OrderDirection", orderDirection},
                 };
-                string endpoints = CreaEndpoint(apiUrl, qParams);
+                string endpoints = CreaEndpoint(apiUrl, qParams); // genero metodo para formar las cadenas endpoint para la api, se puede utilizar para todas
                 
                 var myHeaderObject = new BodyTodasPropiedades
                 {
                     idType = idType == -1 ? null : idType,
                     idBorough = Sector == 0 ? null : Sector,
-                };
+                }; // aca envio los body para filtrar en los select
 
                 string jsonBody = JsonConvert.SerializeObject(myHeaderObject);
 
@@ -55,7 +55,7 @@ namespace Propiedades.Services
                 {
                     response = await _httpClient.PostAsync(endpoints, content);
                 }
-                response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode(); // valido codigo de error para caer el try en caso de != 200
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 var apiResponse = JsonConvert.DeserializeObject<ApiResponse>(jsonResponse);
@@ -72,7 +72,7 @@ namespace Propiedades.Services
                         PageSize = apiResponse.PageSize,
                         HttpCode = apiResponse.HttpCode
                     }
-                };
+                }; // aca transformo el modelo a mi viewModel vmPropiedadResponse, asi puedo trabajar comodo en la vista.
                 return propiedadResponse;
             }
             catch (HttpRequestException ex)
@@ -80,6 +80,7 @@ namespace Propiedades.Services
                 throw ex;
             }
         }
+        // metodo para formatear los endpoints
         public static string CreaEndpoint(string baseEndpoint, Dictionary<string, string> qParams)
         {
             var endpointBuilder = new StringBuilder(baseEndpoint);
@@ -88,7 +89,7 @@ namespace Propiedades.Services
             {
                 var queryString = new StringBuilder();
 
-                foreach (var kvp in qParams)
+                foreach (var kvp in qParams) // voy recorriendo los parametros enviados y voy agregandolos, asi puedo dejar fuera los opcionales y agregar solo lo necesario
                 {
                     if (!string.IsNullOrEmpty(kvp.Value))
                     {
@@ -98,9 +99,9 @@ namespace Propiedades.Services
 
                 if (queryString.Length > 0)
                 {
-                    queryString.Insert(0, "?");
-                    queryString.Length--;
-                    endpointBuilder.Append(queryString);
+                    queryString.Insert(0, "?"); // inserto el ? para el inicio de los parametros
+                    queryString.Length--; // quito el ultimo & en caso de tener
+                    endpointBuilder.Append(queryString); // formateo la cadena
                 }
             }
 
@@ -130,7 +131,7 @@ namespace Propiedades.Services
                 throw ex;
             }
         }
-        public async Task<List<TipoPropiedades>> GetPropertyTypes()
+        public async Task<List<TipoPropiedades>> GetTipoPropiedad()
         {
             string apiUrl = _configuration["AppSettings:ApiUrlTipoPropiedades"];
             string Subscription = _configuration["AppSettings:Subscription-Key"];

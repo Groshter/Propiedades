@@ -14,7 +14,6 @@ namespace Propiedades.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IApiService _apiService;
 
-
         public HomeController(ILogger<HomeController> logger, IApiService apiService)
         {
             _logger = logger;
@@ -26,18 +25,21 @@ namespace Propiedades.Controllers
             int? tipoProp = tipo == null ? null : int.Parse(tipo);
             int? Region = regiones == null ? -1 : int.Parse(regiones);
             int? Sector = sectores == null ? 0 : int.Parse(sectores);
+
             vmPropiedadResponse response = await _apiService.ObtenerTodasLasPropiedades(pageNumber, null, null, 10, null, tipoProp, Sector);
+            
             if (pageNumber == 1 || pageNumber == null)
             {
                 HttpContext.Session.Clear();
                 HttpContext.Session.SetString("TotalRecords", response.Response.TotalRecords.ToString());
                 HttpContext.Session.SetString("Pages", response.Response.TotalPages.ToString());
             }
+
             HttpContext.Session.SetString("PageNumber", (pageNumber == null ? 1 : pageNumber).ToString());
             ViewBag.PageNumber = pageNumber == null ? 1 : pageNumber;
             ViewBag.Pages = Convert.ToInt32(HttpContext.Session.GetString("Pages"));
 
-            var propiedades = await _apiService.GetPropertyTypes();
+            var propiedades = await _apiService.GetTipoPropiedad();
             propiedades.Insert(0, new TipoPropiedades { IdPropertyType = -1, Type = "Seleccionar" });
             ViewBag.PropiedadTipos = new SelectList(propiedades, "IdPropertyType", "Type", tipoProp);
 
